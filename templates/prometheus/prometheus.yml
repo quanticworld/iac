@@ -24,7 +24,7 @@ scrape_configs:
       - targets: ['{{ hostvars[inventory_hostname].prometheus_url }}']
     basic_auth:
       username: prometheus
-      password: "{{ prometheus_basic_auth_password }}""
+      password: "{{ prometheus_basic_auth_password }}"
 
   - job_name: '{{ hostvars[inventory_hostname].ansible_host }}'
     scheme: https
@@ -34,4 +34,4 @@ scrape_configs:
       - targets: ['{{ hostvars[inventory_hostname].node_exporter_url }}']
     basic_auth:
       username: prometheus
-      password: "{{ prometheus_basic_auth_password }}""
+      password: "{{ prometheus_basic_auth_password }}"
