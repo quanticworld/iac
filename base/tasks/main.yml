@@ -1,0 +1,19 @@
+---
+# tasks file for base_setup
+  # install requirements
+  - name: Install list of packages
+    apt: name={{item}} state=present
+    with_items:
+    - python3-pip
+    - firewalld
+    - zip
+    - nmap
+    - chkrootkit
+    - rkhunter
+    - tiger
+    - net-tools
+    - curl
+
+  - name: Install firewall python package
+    ansible.builtin.pip:
+      name: firewall

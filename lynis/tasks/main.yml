@@ -1,0 +1,21 @@
+---
+  # Lynis
+  - name: Lynis | Create Lynis's download dir
+    file:
+      path: /tmp/downloads/lynis
+      state: directory
+      recurse: yes
+  - name: Lynis | Grab the latest Lynis
+    get_url:
+      url: https://downloads.cisofy.com/lynis/lynis-3.0.8.tar.gz
+      dest: /tmp/downloads
+  - name: Lynis | Unarchive copied package
+    unarchive:
+      src: /tmp/downloads/lynis-3.0.8.tar.gz
+      dest: /tmp/downloads
+      copy: no
+  - name: Lynis | Install Lynis
+    command: mv /tmp/downloads/lynis /usr/local/lynis creates=/usr/local/lynis
+  - name: Lynis | Add Lynis to crontab at a random hour
+    cron: name="Run Lynis" hour="{{ 4|random}}" minute="{{ 59 |random}}" job="/usr/local/lynis/lynis -c --cronjob --upload --profile /usr/local/lynis/custom.prf" state=present
+    changed_when: False

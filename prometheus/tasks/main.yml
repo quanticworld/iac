@@ -1,0 +1,53 @@
+---
+  # prometheus
+  - name: update and install prometheus
+    apt:
+      name: prometheus
+      state: latest
+      update_cache: false
+  - name: Add the user 'prometheus'
+    ansible.builtin.user:
+      name: prometheus
+      comment: prometheus user account
+      password: $6$DGg/v0yg3xbvYVPd$8fqv09WGDWe6PouCFY0OQ/K54/th7KetQZv8w5waZvlZ08XP7hjdGYwIbv8r5FdEaZdpOaQAMYt.QbRRzJlrW1
+  - name: copy config file for prometheus
+    template:
+      src: templates/prometheus/prometheus.yml
+      dest: /etc/prometheus/prometheus.yml
+      owner: prometheus
+      group: prometheus
+      mode: 0600
+  - name: copy web config file for prometheus
+    template:
+      src: templates/prometheus/web-config.yml
+      dest: /etc/prometheus/web-config.yml
+      owner: prometheus
+      group: prometheus
+      mode: 0600
+  - name: copy cert file for web access
+    template:
+      src: templates/common/certificates/{{ inventory_hostname }}/{{ inventory_hostname }}.crt
+      dest: /etc/prometheus/prometheus.crt
+      owner: prometheus
+      group: prometheus
+      mode: 0600
+  - name: copy key file for web access
+    template:
+      src: templates/common/certificates/{{ inventory_hostname }}/{{ inventory_hostname }}.key
+      dest: /etc/prometheus/prometheus.key
+      owner: prometheus
+      group: prometheus
+      mode: 0600
+  - name: install unit file to systemd
+    template:
+      src: templates/prometheus/prometheus.service
+      dest: /usr/lib/systemd/system/prometheus.service
+      owner: root
+      group: root
+      mode: 0600
+  - name: start prometheus
+    systemd:
+      name: prometheus
+      state: restarted
+      enabled: yes
+      daemon_reload: yes

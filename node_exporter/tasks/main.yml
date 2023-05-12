@@ -1,0 +1,71 @@
+---
+  # node_exporter
+  - name: Add the user 'node_exporter'
+    ansible.builtin.user:
+      name: node_exporter
+      comment: node_exporter user account
+      password: $6$DGg/v0yg3xbvYVPd$8fqv09WGDWe6PouCFY0OQ/K54/th7KetQZv8w5waZvlZ08XP7hjdGYwIbv8r5FdEaZdpOaQAMYt.QbRRzJlrW1
+  - name: download node exporter
+    get_url:
+      url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
+      dest: /tmp
+  - name: unarchive node exporter
+    unarchive:
+      remote_src: yes
+      src: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
+      dest: /tmp
+  - name: move node exporter to /usr/bin
+    copy:
+      src: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter
+      dest: /usr/bin/node_exporter
+      remote_src: yes
+      owner: node_exporter
+      group: node_exporter
+      mode: 0755
+  - name: install unit file to systemd
+    template:
+      src: templates/node_exporter/node_exporter.service
+      dest: /usr/lib/systemd/system/node_exporter.service
+      owner: root
+      group: root
+      mode: 0600
+  - name: configure systemd to use service
+    systemd:
+      daemon_reload: yes
+      enabled: yes
+      state: restarted
+      name: node_exporter.service
+  - name: Creates node_exporter config directory
+    file:
+      path: /etc/node_exporter
+      state: directory
+      owner: node_exporter
+      group: node_exporter
+  - name: copy cert file for web access
+    template:
+      src: templates/common/certificates/{{ inventory_hostname }}/{{ inventory_hostname }}.crt
+      dest: /etc/node_exporter/node_exporter.crt
+      owner: node_exporter
+      group: node_exporter
+      mode: 0600
+  - name: copy key file for web access
+    template:
+      src: templates/common/certificates/{{ inventory_hostname }}/{{ inventory_hostname }}.key
+      dest: /etc/node_exporter/node_exporter.key
+      owner: node_exporter
+      group: node_exporter
+      mode: 0600
+  - name: copy web config file for node_exporter
+    template:
+      src: templates/node_exporter/config.yml
+      dest: /etc/node_exporter/config.yml
+      owner: node_exporter
+      group: node_exporter
+      mode: 0600
+  - name: Start node_exporter
+    ansible.builtin.systemd:
+      state: started
+      daemon_reload: yes
+      enabled: yes
+      name: node_exporter
+

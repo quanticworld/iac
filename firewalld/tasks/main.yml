@@ -1,0 +1,22 @@
+---
+  # Configure firewalld
+  - name: FirewallD rules
+    ansible.posix.firewalld:
+      permanent: yes
+      immediate: yes
+      port: "{{ item }}"
+      state: enabled
+    with_items:
+    - ssh/tcp
+    - 9090/tcp
+    - 9200/tcp
+
+  - name: Add ports to firewall
+    firewalld:
+      port: "{{ item }}/tcp"
+      state: enabled
+      immediate: true
+      permanent: true
+    loop: "{{ ansible_facts.tcp_listen  | map(attribute='port') | sort | list }}"
+    register: ports_added_to_firewalld
+

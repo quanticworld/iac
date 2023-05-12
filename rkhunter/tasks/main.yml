@@ -1,0 +1,17 @@
+---
+  # rkhunter
+  - name: rkhunter | Make sure rkhunter has latest defs
+    command: rkhunter --propupd
+    changed_when: False
+  - name: copy rkhunter config
+    template:
+      src: templates/rkhunter/rkhunter
+      dest: /etc/default/rkhunter
+  - name: copy rkhunter default config
+    template:
+      src: templates/rkhunter/rkhunter
+      dest: /etc/default/rkhunter
+  - name: copy rkhunter etc config
+    template:
+      src: templates/rkhunter/rkhunter.conf
+      dest: /etc/rkhunter.conf
